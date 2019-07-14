@@ -24,6 +24,9 @@
   "homepage": "https://github.com/arifsetyawan/square-to-jurnalid#readme",
   "dependencies": {
     "lodash": "^4.17.14",
+    "minimist": "^1.2.0",
+    "moment": "^2.24.0",
+    "papaparse": "^5.0.0",
     "square-connect": "^2.20190710.0"
   },
   "devDependencies": {
