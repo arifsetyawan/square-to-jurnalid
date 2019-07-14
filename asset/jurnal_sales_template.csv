@@ -1,0 +1,1 @@
+*Customer,Email,BillingAddress,ShippingAddress,*InvoiceDate,*DueDate,ShippingDate,ShipVia,TrackingNo,CustomerRefNo,*InvoiceNumber,Message,Memo,*ProductName,Description,*Quantity,Unit,*UnitPrice,ProductDiscountRate(%),InvoiceDiscountRate(%),TaxName,TaxRate(%),ShippingFee,#paid?(yes/no),#PaymentMethod,#PaidToAccountCode,Tags (use ; to separate tags),WarehouseName
