@@ -4,7 +4,7 @@ const _ = require("lodash");
 const fs = require("fs");
 const path = require("path");
 const Papa = require("papaparse");
-const Moment = require("moment");
+const Moment = require("moment-timezone");
 const argv = require("minimist")(process.argv.slice(2));
 
 const fileUtil = require("./util/file");
@@ -35,29 +35,8 @@ async function requestMapping() {
   run_config.InvoiceNumber = `POS${run_config.Year}${run_config.Month}${run_config.Day}`;
 
   const today = `${run_config.Year}-${run_config.Month}-${run_config.Day}`;
-  run_config.NextDay = Moment(today).add(1, "d").format("DD");
-  run_config.NextDate = Moment(today).add(1, "d").format("YYYY-MM-DD");
-
-  if (!_.isEqual(Moment(`${today} 00:00:01`).add(1, "d").format("MM"), Moment(today).format("MM"))) {
-    run_config.fileItem = `items-${run_config.Year}-${_.padStart(run_config.Month, 2, "0")}-${_.padStart(run_config.Day, 2, "0")}-${run_config.NextDate}.csv`;
-    run_config.fileTransaction = `transactions-${run_config.Year}-${_.padStart(run_config.Month, 2, "0")}-${_.padStart(run_config.Day, 2, "0")}-${run_config.NextDate}.csv`;
-  } else {
-    run_config.fileItem = `items-${run_config.Year}-${_.padStart(run_config.Month, 2, "0")}-${_.padStart(run_config.Day, 2, "0")}-${run_config.Year}-${_.padStar(run_config.Month, 2, "0")}-${_.padStart(run_config.NextDay, 2, "0")}.csv`;
-    run_config.fileTransaction = `transactions-${run_config.Year}-${_.padStart(run_config.Month, 2, "0")}-${_.padStart(run_config.Day, 2, "0")}-${run_config.Year}-${_.padStart(run_config.Month, 2, "0")}-${_.padStart(run_config.NextDay, 2, "0")}.csv`;
-  }
-
-  run_config.NextDate = Moment()
-    .add(1, "d")
-    .format("YYYY-MM-DD");
-  // convert date
-  run_config.Date = `${_.padStart(run_config.Day, 2, "0")}/${_.padStart(
-    run_config.Month,
-    2,
-    "0"
-  )}/${run_config.Year}`;
-  run_config.EndDate = Moment([run_config.Year, run_config.Month - 1])
-    .endOf("month")
-    .format("DD/MM/YYYY");
+  run_config.BeginTime = Moment(today).tz("Asia/Makassar").format("YYYY-MM-DDTHH:mm:ss");
+  run_config.EndTime = Moment(today).tz("Asia/Makassar").add(24, 'h').subtract(1, 's').format("YYYY-MM-DDTHH:mm:ss");
 }
 
 /**
@@ -71,19 +50,16 @@ async function main() {
   try {
     const SqOpts = {
       order: "DESC",
-      beginTime: "2019-07-11T00:00:00",
-      endTime: "2019-07-11T23:59:59",
+      beginTime: run_config.BeginTime,
+      endTime: run_config.EndTime,
       limit: 200,
       includePartial: true
     };
-    const paymentsData = await SqApiInstance.listPayments(
-      square_config.location_id,
-      SqOpts
-    );
-    const refundsData = await SqApiInstance.listRefunds(
-      square_config.location_id,
-      SqOpts
-    );
+
+    console.log(SqOpts);
+
+    const paymentsData = await SqApiInstance.listPayments(square_config.location_id, SqOpts);
+    const refundsData = await SqApiInstance.listRefunds(square_config.location_id, SqOpts);
     const filteredPaymentsData = _.filter(paymentsData, o => {
       return o.itemizations.length > 0;
     });
@@ -95,15 +71,7 @@ async function main() {
       //console.log(payment.itemizations);
       const items = payment.itemizations;
       items.map(item => {
-        if (item.quantity < 0) {
-          console.log(
-            `${item.name} (${item.quantity}) tax(${JSON.stringify(
-              item.taxes
-            )}) $ {item.total_money.amount/100} ${JSON.stringify(
-              item.modifiers
-            )}`
-          );
-        }
+        console.log(`${item.name} (${item.quantity}) tax(${JSON.stringify(item.taxes)}) ${item.total_money.amount/100} ${JSON.stringify(item.modifiers)}`);
       });
     });
 
