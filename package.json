@@ -1,0 +1,32 @@
+{
+  "name": "square-to-jurnalid",
+  "version": "1.0.0",
+  "description": "Converting Squareup Sales Report to Jurnal Indonesia sales data",
+  "main": "run.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arifsetyawan/square-to-jurnalid.git"
+  },
+  "keywords": [
+    "square",
+    "squareup",
+    "journal",
+    "journalid"
+  ],
+  "author": "Arif Setyawan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arifsetyawan/square-to-jurnalid/issues"
+  },
+  "homepage": "https://github.com/arifsetyawan/square-to-jurnalid#readme",
+  "dependencies": {
+    "lodash": "^4.17.14",
+    "square-connect": "^2.20190710.0"
+  },
+  "devDependencies": {
+    "prettier": "^1.18.2"
+  }
+}
