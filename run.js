@@ -31,12 +31,11 @@ async function requestMapping() {
   run_config.Day = argv.d ? _.padStart(argv.d, 2, "0") : Moment().format("DD");
   run_config.Month = argv.m ? _.padStart(argv.m, 2, "0") : Moment().format("MM");
   run_config.Year = argv.y || argv.year || Moment().format("YYYY");
-
   run_config.InvoiceNumber = `POS${run_config.Year}${run_config.Month}${run_config.Day}`;
-
   const today = `${run_config.Year}-${run_config.Month}-${run_config.Day}`;
   run_config.BeginTime = Moment(today).tz("Asia/Makassar").format("YYYY-MM-DDTHH:mm:ss");
   run_config.EndTime = Moment(today).tz("Asia/Makassar").add(24, 'h').subtract(1, 's').format("YYYY-MM-DDTHH:mm:ss");
+}
 
 /**
  * Squareup number is extra 00 digit. need to trim last 00 digit
