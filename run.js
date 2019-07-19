@@ -37,7 +37,6 @@ async function requestMapping() {
   const today = `${run_config.Year}-${run_config.Month}-${run_config.Day}`;
   run_config.BeginTime = Moment(today).tz("Asia/Makassar").format("YYYY-MM-DDTHH:mm:ss");
   run_config.EndTime = Moment(today).tz("Asia/Makassar").add(24, 'h').subtract(1, 's').format("YYYY-MM-DDTHH:mm:ss");
-}
 
 /**
  * Squareup number is extra 00 digit. need to trim last 00 digit
@@ -83,10 +82,10 @@ async function main() {
       includePartial: true
     };
 
+    console.log(SqOpts);
+
     const paymentsData = await SqApiInstance.listPayments(square_config.location_id, SqOpts);
     const refundsData = await SqApiInstance.listRefunds(square_config.location_id, SqOpts);
-
-    // Filter payment data that have item
     const filteredPaymentsData = _.filter(paymentsData, o => {
       return o.itemizations.length > 0;
     });
