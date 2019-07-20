@@ -66,4 +66,4 @@ typings/
 #config
 *.config.json
 
-result/*.csv
+jurnal_csv_result/*.csv

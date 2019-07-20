@@ -272,41 +272,41 @@ async function main() {
       fields: jurnalTemplateHeader,
       data: trxPaidCash
     }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/result/jurnal_sales_paid_cash.csv`, exportPaidCashList);
+    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/jurnal_sales_paid_cash.csv`, exportPaidCashList);
     console.log('Transaction Paid Cash Export Success >> ', trxPaidCash.length, 'item');
 
     const exportPaidCashListTax = await Papa.unparse({
       fields: jurnalTemplateHeader,
       data: trxPaidCashTax
     }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/result/jurnal_sales_paid_cash_tax.csv`, exportPaidCashListTax);
+    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/jurnal_sales_paid_cash_tax.csv`, exportPaidCashListTax);
     console.log('Transaction Paid Cash (TAX) Export Success >> ', trxPaidCashTax.length, 'item');
 
     const exportPaidBankList = await Papa.unparse({
       fields: jurnalTemplateHeader,
       data: trxPaidBank
     }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/result/jurnal_sales_paid_bank.csv`, exportPaidBankList);
+    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/jurnal_sales_paid_bank.csv`, exportPaidBankList);
     console.log('Transaction Paid Bank Export Success >> ', trxPaidBank.length, 'item');
 
     const exportPaidBankListTax = await Papa.unparse({
       fields: jurnalTemplateHeader,
       data: trxPaidBankTax
     }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/result/jurnal_sales_paid_bank_tax.csv`, exportPaidBankListTax);
+    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/jurnal_sales_paid_bank_tax.csv`, exportPaidBankListTax);
     console.log('Transaction Paid Bank (TAX) Export Success >> ', trxPaidBankTax.length, 'item');
 
     const exportDebtList = await Papa.unparse({
       fields: jurnalTemplateHeader,
       data: trxDebt
     }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/result/jurnal_sales_debt.csv`, exportDebtList);
+    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/jurnal_sales_debt.csv`, exportDebtList);
     console.log('Transaction Others Export Success >> ', trxDebt.length, 'item');
 
     const exportIgnoreList = await Papa.unparse({
       data: ignoredList
     }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/result/ignored.csv`, exportIgnoreList);
+    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/ignored.csv`, exportIgnoreList);
     console.log('Ignored Transaction >> ', ignoredList.length, 'item');
 
     console.log('==========================================');
