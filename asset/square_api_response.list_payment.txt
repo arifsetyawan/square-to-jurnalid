@@ -1,0 +1,61 @@
+-------------------------------
+exports {
+  id: 'l71SbrClCWdsK8qvRfJ6JQB',
+  merchant_id: '6T325VP85FZS8',
+  created_at: '2019-07-19T03:29:52Z',
+  creator_id: '6T325VP85FZS8',
+  device:
+   exports {
+     id:
+      'DEVICE_INSTALLATION_ID:84EB26BB-0CC1-43D8-A5E3-F75C7D7D11A1',
+     name: 'iPad (2)' },
+  payment_url:
+   'https://squareup.com/dashboard/sales/transactions/j8iEviBeXgCC1RhnAwH465teV',
+  receipt_url:
+   'https://squareup.com/receipt/preview/l71SbrClCWdsK8qvRfJ6JQB',
+  inclusive_tax_money: exports { amount: 0, currency_code: 'IDR' },
+  additive_tax_money: exports { amount: 0, currency_code: 'IDR' },
+  tax_money: exports { amount: 0, currency_code: 'IDR' },
+  tip_money: exports { amount: 0, currency_code: 'IDR' },
+  discount_money: exports { amount: 0, currency_code: 'IDR' },
+  total_collected_money: exports { amount: 5900000, currency_code: 'IDR' },
+  processing_fee_money: exports { amount: 0, currency_code: 'IDR' },
+  net_total_money: exports { amount: 5900000, currency_code: 'IDR' },
+  refunded_money: exports { amount: 0, currency_code: 'IDR' },
+  swedish_rounding_money: exports { amount: 0, currency_code: 'IDR' },
+  gross_sales_money: exports { amount: 5900000, currency_code: 'IDR' },
+  net_sales_money: exports { amount: 5900000, currency_code: 'IDR' },
+  inclusive_tax: [],
+  additive_tax: [],
+  tender:
+   [ exports {
+       id: 'l71SbrClCWdsK8qvRfJ6JQB',
+       type: 'CASH',
+       name: 'Cash',
+       receipt_url:
+        'https://squareup.com/receipt/preview/l71SbrClCWdsK8qvRfJ6JQB',
+       total_money: [exports],
+       tendered_money: [exports],
+       tendered_at: '2019-07-19T03:29:53Z',
+       settled_at: '2019-07-19T03:29:53Z',
+       change_back_money: [exports],
+       refunded_money: [exports],
+       is_exchange: false } ],
+  refunds: [],
+  itemizations:
+   [ exports {
+       name: 'Sunda Gunung Halu Honey 150 Gr',
+       quantity: 1,
+       itemization_type: 'ITEM',
+       item_detail: [exports],
+       item_variation_name: 'Regular',
+       total_money: [exports],
+       single_quantity_money: [exports],
+       gross_sales_money: [exports],
+       discount_money: [exports],
+       net_sales_money: [exports],
+       taxes: [],
+       discounts: [],
+       modifiers: [] } ],
+  surcharge_money: exports { amount: 0, currency_code: 'IDR' },
+  surcharges: [] }

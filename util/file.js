@@ -9,3 +9,6 @@ module.exports.readFile = (path, opts = 'utf8') => new Promise((res, rej) => {
     }
   });
 });
+
+
+module.exports.fs = fs;
