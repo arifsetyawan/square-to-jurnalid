@@ -58,6 +58,8 @@ async function main() {
     let squareJurnalMenuList = {};
     let targetTrxArr = [];
     let taxName = "";
+    let itemCount = 0;
+    let refundCount = 0;
 
     run_config.InvoiceNumber = `POS${run_config.Year}${run_config.Month}${run_config.Day}`;
 
@@ -69,7 +71,7 @@ async function main() {
       escapeChar: '"',
       header: true
     });
-    jurnalSalesTemplate = jurnalSalesTemplate.meta.fields;
+    jurnalTemplateHeader = jurnalSalesTemplate.meta.fields;
 
     // Getting menu lists
     squareJurnalMenuList = await fileUtil.readFile(`${__dirname}/asset/square_jurnal_menu_list.csv`);
@@ -90,14 +92,11 @@ async function main() {
       includePartial: true
     };
     const paymentsData = await SqApiInstance.listPayments(square_config.location_id, SqOpts);
-    const refundsData = await SqApiInstance.listRefunds(square_config.location_id, SqOpts);
     const filteredPaymentsData = _.filter(paymentsData, o => {
       return o.itemizations.length > 0;
     });
 
     filteredPaymentsData.map(payment => {
-      console.log("-------------------------------");
-      // console.log(payment);
 
       const payment_id = payment.id;
       const tender = payment.tender[0];
@@ -105,11 +104,6 @@ async function main() {
 
       let jurnal_transactionDate = `${_.padStart(run_config.Day, 2, '0')}/${_.padStart(run_config.Month, 2, '0')}/${run_config.Year}`;
       let jurnal_transactionDueDate = jurnal_transactionDate;
-
-      // console.log(payment.tender);
-      // console.log(payment.tender.length);
-      // console.log('tender', tender.type, 'name', tender.name);
-
 
       // Iterating through items
       items.map(item => {
@@ -136,6 +130,7 @@ async function main() {
         let jurnal_taxRate = 0;
         let jurnal_tenderNote = "";
         let jurnal_itemName = "";
+        let jurnal_itemAmount = 0;
 
         if (item.discounts.length > 0) {
           jurnal_discountValue = numberUtil.calculateDiscountNumber(item_gross_amount, item_discount_amount);
@@ -147,16 +142,16 @@ async function main() {
           jurnal_taxRate = 10;
         }
 
-        // Tender Check
         if (_.toUpper(tender.type) === "CASH") {
           jurnal_isPaid = "yes";
           jurnal_paymentMethod = "Cash";
           jurnal_payToAccountCode = jurnal_config.paymentMethodList.kas_kasir;
           if (item_tax_amount > 0) {
-            jurnal_invoiceNumber = `${run_config.InvoiceNumber}-PPN`;
+            jurnal_invoiceNumber = `${run_config.InvoiceNumber}-CASH-PPN`;
             jurnal_taxName = "PPn";
             targetTrxArr = trxPaidCashTax;
           } else {
+            jurnal_invoiceNumber = `${run_config.InvoiceNumber}-CASH`;
             targetTrxArr = trxPaidCash;
           }
         } else if (_.toLower(tender.name).includes('hutang')) {
@@ -180,12 +175,6 @@ async function main() {
           }
         }
 
-        if (item.modifiers.length > 0) {
-          console.log(item.modifiers[0].name);
-        } else {
-          console.log('no modifier');
-        }
-
         // TODO: Item Name Conversion
         let selectedItem = _.find(squareJurnalMenuList, (o) => {
           if (item.modifiers.length > 0) {
@@ -202,50 +191,73 @@ async function main() {
             });
         } else {
           jurnal_itemName = selectedItem.jurnal_item_name;
+
+          // Check Refund
+          if (payment.refunds.length > 0) {
+            console.log(payment.refunds);
+            if (payment.refunds[0].type === 'FULL') {
+              refundCount += 1;
+              return;
+            } else {
+              const searchRefund = _.find(payment.refunds, (o) => {
+                return numberUtil.calibrateAmount(Math.abs(o.refunded_money.amount)) === item_total_amount
+              });
+              if (searchRefund) {
+                payment.refunds = _.remove(payment.refunds, searchRefund);
+                refundCount += 1;
+                return;
+              }
+            }
+
+          }
+
+          // Writting result to Array
+          rowOfTrx = [
+            run_config.Customer,
+            '',
+            '',
+            '',
+            jurnal_transactionDate,
+            jurnal_transactionDueDate,
+            '',
+            '',
+            '',
+            '',
+            jurnal_invoiceNumber,
+            '',
+            '',
+            jurnal_itemName,
+            `${payment_id}_${item_id}`,
+            item_quantity,
+            '',
+            (item_gross_amount/item_quantity),
+            jurnal_discountValue,
+            '',
+            jurnal_taxName,
+            jurnal_taxRate,
+            '',
+            jurnal_isPaid,
+            jurnal_paymentMethod,
+            jurnal_payToAccountCode,
+            jurnal_tenderNote,
+            ''
+          ];
+
+          targetTrxArr.push(rowOfTrx);
         }
 
-        // Writting result to Array
-        rowOfTrx = [
-          run_config.Customer,
-          '',
-          '',
-          '',
-          jurnal_transactionDate,
-          jurnal_transactionDueDate,
-          '',
-          '',
-          '',
-          '',
-          jurnal_invoiceNumber,
-          '',
-          '',
-          jurnal_itemName,
-          `${payment_id}_${item_id}`,
-          item_quantity,
-          '',
-          item_total_amount,
-          jurnal_discountValue,
-          '',
-          jurnal_taxName,
-          jurnal_taxRate,
-          '',
-          jurnal_isPaid,
-          jurnal_paymentMethod,
-          jurnal_payToAccountCode,
-          jurnal_tenderNote,
-          ''
-        ];
-
-        targetTrxArr.push(rowOfTrx);
-
+        itemCount += 1;
       });
 
     });
 
-    refundsData.map(refund => {
-      console.log('REFUND ===========');
-      console.log(refund);
-    });
+    console.log('==========================================');
+    console.log('SUMMARY');
+    console.log('==========================================');
+    console.log('Item Transaction Count:', itemCount);
+    console.log('Item Translated Transaction Count:', trxPaidCash.length + trxPaidCashTax.length + trxPaidBank.length + trxPaidBankTax.length + trxDebt.length + ignoredList.length );
+    console.log('==========================================');
+
 
     // Export
     const unparseConfig = {
@@ -261,35 +273,44 @@ async function main() {
       data: trxPaidCash
     }, unparseConfig);
     await fileUtil.fs.writeFileSync(`${__dirname}/result/jurnal_sales_paid_cash.csv`, exportPaidCashList);
+    console.log('Transaction Paid Cash Export Success >> ', trxPaidCash.length, 'item');
 
     const exportPaidCashListTax = await Papa.unparse({
       fields: jurnalTemplateHeader,
       data: trxPaidCashTax
     }, unparseConfig);
     await fileUtil.fs.writeFileSync(`${__dirname}/result/jurnal_sales_paid_cash_tax.csv`, exportPaidCashListTax);
+    console.log('Transaction Paid Cash (TAX) Export Success >> ', trxPaidCashTax.length, 'item');
 
     const exportPaidBankList = await Papa.unparse({
       fields: jurnalTemplateHeader,
       data: trxPaidBank
     }, unparseConfig);
     await fileUtil.fs.writeFileSync(`${__dirname}/result/jurnal_sales_paid_bank.csv`, exportPaidBankList);
+    console.log('Transaction Paid Bank Export Success >> ', trxPaidBank.length, 'item');
 
     const exportPaidBankListTax = await Papa.unparse({
       fields: jurnalTemplateHeader,
       data: trxPaidBankTax
     }, unparseConfig);
     await fileUtil.fs.writeFileSync(`${__dirname}/result/jurnal_sales_paid_bank_tax.csv`, exportPaidBankListTax);
+    console.log('Transaction Paid Bank (TAX) Export Success >> ', trxPaidBankTax.length, 'item');
 
     const exportDebtList = await Papa.unparse({
       fields: jurnalTemplateHeader,
       data: trxDebt
     }, unparseConfig);
     await fileUtil.fs.writeFileSync(`${__dirname}/result/jurnal_sales_debt.csv`, exportDebtList);
+    console.log('Transaction Others Export Success >> ', trxDebt.length, 'item');
 
     const exportIgnoreList = await Papa.unparse({
       data: ignoredList
     }, unparseConfig);
     await fileUtil.fs.writeFileSync(`${__dirname}/result/ignored.csv`, exportIgnoreList);
+    console.log('Ignored Transaction >> ', ignoredList.length, 'item');
+
+    console.log('==========================================');
+    console.log('Refund Count', refundCount);
 
   } catch (error) {
     console.error(error);
