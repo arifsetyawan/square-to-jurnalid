@@ -67,3 +67,4 @@ typings/
 *.config.json
 
 jurnal_csv_result/*.csv
+jurnal_csv_result/
