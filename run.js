@@ -1,7 +1,6 @@
 const SquareConnect = require("square-connect");
 const defaultClient = SquareConnect.ApiClient.instance;
 const _ = require("lodash");
-const fs = require("fs");
 const path = require("path");
 const Papa = require("papaparse");
 const Moment = require("moment-timezone");
@@ -60,6 +59,8 @@ async function main() {
     let taxName = "";
     let itemCount = 0;
     let refundCount = 0;
+
+    let runningDate = `${run_config.Year}-${run_config.Month}-${run_config.Day}`;
 
     run_config.InvoiceNumber = `POS${run_config.Year}${run_config.Month}${run_config.Day}`;
 
@@ -258,7 +259,6 @@ async function main() {
     console.log('Item Translated Transaction Count:', trxPaidCash.length + trxPaidCashTax.length + trxPaidBank.length + trxPaidBankTax.length + trxDebt.length + ignoredList.length );
     console.log('==========================================');
 
-
     // Export
     const unparseConfig = {
       quotes: true,
@@ -268,46 +268,60 @@ async function main() {
       header: true
     };
 
-    const exportPaidCashList = await Papa.unparse({
-      fields: jurnalTemplateHeader,
-      data: trxPaidCash
-    }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/jurnal_sales_paid_cash.csv`, exportPaidCashList);
-    console.log('Transaction Paid Cash Export Success >> ', trxPaidCash.length, 'item');
+    await fileUtil.fse.ensureDirSync(`${__dirname}/jurnal_csv_result/${runningDate}/`);
 
-    const exportPaidCashListTax = await Papa.unparse({
-      fields: jurnalTemplateHeader,
-      data: trxPaidCashTax
-    }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/jurnal_sales_paid_cash_tax.csv`, exportPaidCashListTax);
-    console.log('Transaction Paid Cash (TAX) Export Success >> ', trxPaidCashTax.length, 'item');
+    if (trxPaidCash.length > 0) {
+      const exportPaidCashList = await Papa.unparse({
+        fields: jurnalTemplateHeader,
+        data: trxPaidCash
+      }, unparseConfig);
+      await fileUtil.fse.writeFileSync(`${__dirname}/jurnal_csv_result/${runningDate}/jurnal_sales_paid_cash.csv`, exportPaidCashList);
+      console.log('Transaction Paid Cash Export Success >> ', trxPaidCash.length, 'item');
+    }
 
-    const exportPaidBankList = await Papa.unparse({
-      fields: jurnalTemplateHeader,
-      data: trxPaidBank
-    }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/jurnal_sales_paid_bank.csv`, exportPaidBankList);
-    console.log('Transaction Paid Bank Export Success >> ', trxPaidBank.length, 'item');
+    if (trxPaidCashTax.length > 0) {
+      const exportPaidCashListTax = await Papa.unparse({
+        fields: jurnalTemplateHeader,
+        data: trxPaidCashTax
+      }, unparseConfig);
+      await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/${runningDate}/jurnal_sales_paid_cash_tax.csv`, exportPaidCashListTax);
+      console.log('Transaction Paid Cash (TAX) Export Success >> ', trxPaidCashTax.length, 'item');
+    }
 
-    const exportPaidBankListTax = await Papa.unparse({
-      fields: jurnalTemplateHeader,
-      data: trxPaidBankTax
-    }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/jurnal_sales_paid_bank_tax.csv`, exportPaidBankListTax);
-    console.log('Transaction Paid Bank (TAX) Export Success >> ', trxPaidBankTax.length, 'item');
+    if (trxPaidBank.length > 0) {
+      const exportPaidBankList = await Papa.unparse({
+        fields: jurnalTemplateHeader,
+        data: trxPaidBank
+      }, unparseConfig);
+      await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/${runningDate}/jurnal_sales_paid_bank.csv`, exportPaidBankList);
+      console.log('Transaction Paid Bank Export Success >> ', trxPaidBank.length, 'item');
+    }
 
-    const exportDebtList = await Papa.unparse({
-      fields: jurnalTemplateHeader,
-      data: trxDebt
-    }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/jurnal_sales_debt.csv`, exportDebtList);
-    console.log('Transaction Others Export Success >> ', trxDebt.length, 'item');
+    if (trxPaidCashTax.length > 0) {
+      const exportPaidBankListTax = await Papa.unparse({
+        fields: jurnalTemplateHeader,
+        data: trxPaidBankTax
+      }, unparseConfig);
+      await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/${runningDate}/jurnal_sales_paid_bank_tax.csv`, exportPaidBankListTax);
+      console.log('Transaction Paid Bank (TAX) Export Success >> ', trxPaidBankTax.length, 'item');
+    }
 
-    const exportIgnoreList = await Papa.unparse({
-      data: ignoredList
-    }, unparseConfig);
-    await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/ignored.csv`, exportIgnoreList);
-    console.log('Ignored Transaction >> ', ignoredList.length, 'item');
+    if (trxDebt.length > 0) {
+      const exportDebtList = await Papa.unparse({
+        fields: jurnalTemplateHeader,
+        data: trxDebt
+      }, unparseConfig);
+      await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/${runningDate}/jurnal_sales_debt.csv`, exportDebtList);
+      console.log('Transaction Others Export Success >> ', trxDebt.length, 'item');
+    }
+
+    if (ignoredList.length > 0) {
+      const exportIgnoreList = await Papa.unparse({
+        data: ignoredList
+      }, unparseConfig);
+      await fileUtil.fs.writeFileSync(`${__dirname}/jurnal_csv_result/${runningDate}/ignored.csv`, exportIgnoreList);
+      console.log('Ignored Transaction >> ', ignoredList.length, 'item');
+    }
 
     console.log('==========================================');
     console.log('Refund Count', refundCount);
