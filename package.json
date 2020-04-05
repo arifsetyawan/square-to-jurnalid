@@ -25,7 +25,7 @@
   "dependencies": {
     "fs-extra": "^8.1.0",
     "lodash": "^4.17.14",
-    "minimist": "^1.2.0",
+    "minimist": "^1.2.3",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.26",
     "papaparse": "^5.0.0",
