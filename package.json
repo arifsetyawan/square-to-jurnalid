@@ -28,7 +28,7 @@
     "minimist": "^1.2.0",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.26",
-    "papaparse": "^5.0.0",
+    "papaparse": "^5.2.0",
     "square-connect": "^2.20190710.0"
   },
   "devDependencies": {
