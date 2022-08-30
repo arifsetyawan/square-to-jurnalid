@@ -27,7 +27,7 @@
     "lodash": "^4.17.14",
     "minimist": "^1.2.0",
     "moment": "^2.24.0",
-    "moment-timezone": "^0.5.26",
+    "moment-timezone": "^0.5.35",
     "papaparse": "^5.0.0",
     "square-connect": "^2.20190710.0"
   },
